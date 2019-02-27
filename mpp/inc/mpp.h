@@ -142,6 +142,7 @@ public:
     MppPollType     mOutputTimeout;
 
     MppTask         mInputTask;
+    MppIOMode       mIOMode;
     /*
      * There are two threads for each decoder/encoder: codec thread and hal thread
      *

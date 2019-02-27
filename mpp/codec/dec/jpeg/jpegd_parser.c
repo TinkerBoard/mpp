@@ -44,8 +44,6 @@ static RK_S32 jpegd_find_marker(const RK_U8 **pbuf_ptr, const RK_U8 *buf_end)
         if ((v == 0xff) && (v2 >= 0xc0) && (v2 <= 0xfe) && buf_ptr < buf_end) {
             val = *buf_ptr++;
             goto found;
-        } else if ((v == 0x89) && (v2 == 0x50)) {
-            mpp_log("input img maybe png format,check it\n");
         }
         skipped++;
     }
@@ -1182,6 +1180,9 @@ static MPP_RET jpegd_update_frame(JpegdCtx *ctx)
 {
     jpegd_dbg_func("enter\n");
 
+    mpp_buf_slot_set_flag(ctx->frame_slots, ctx->frame_slot_index, SLOT_QUEUE_USE);
+    mpp_buf_slot_enqueue(ctx->frame_slots, ctx->frame_slot_index, QUEUE_DISPLAY);
+
     mpp_buf_slot_clr_flag(ctx->frame_slots, ctx->frame_slot_index,
                           SLOT_CODEC_USE);
     ctx->frame_slot_index = -1;
@@ -1287,7 +1288,7 @@ static MPP_RET jpegd_init(void *ctx, ParserCfg *parser_cfg)
     JpegCtx->frame_slots = parser_cfg->frame_slots;
     JpegCtx->packet_slots = parser_cfg->packet_slots;
     JpegCtx->frame_slot_index = -1;
-    mpp_buf_slot_setup(JpegCtx->frame_slots, 1);
+    mpp_buf_slot_setup(JpegCtx->frame_slots, 3);
 
     JpegCtx->recv_buffer = mpp_calloc(RK_U8, JPEGD_STREAM_BUFF_SIZE);
     if (NULL == JpegCtx->recv_buffer) {
